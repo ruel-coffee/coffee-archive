@@ -95,9 +95,119 @@ function calcRatio(dose, beverage) {
 
 function positionText(tds, ey) {
   if (!tds || !ey) return "-";
-  const strength = tds < 1.15 ? "약함" : tds > 1.35 ? "강함" : "권장 농도";
+  const strength = tds < 1.15 ? "약함" : tds > 1.45 ? "강함" : "권장 농도";
   const extraction = ey < 18 ? "저수율" : ey > 22 ? "고수율" : "권장 수율";
   return `${strength} / ${extraction}`;
+}
+
+function getExtractionAdvice(tds, ey, ratio) {
+  if (!tds || !ey || !Number.isFinite(Number(tds)) || !Number.isFinite(Number(ey))) {
+    return {
+      zone: "입력 대기",
+      summary: "도징, 추출액, TDS를 입력하면 현재 차트 위치를 기준으로 다음 조정 방향을 제안합니다.",
+      primary: "-",
+      secondary: "-",
+      test: "-",
+      note: "한 번에 하나의 변수만 바꾸면 다음 추출에서 원인을 더 정확히 볼 수 있습니다."
+    };
+  }
+
+  const strength = tds < 1.15 ? "low" : tds > 1.45 ? "high" : "ideal";
+  const extraction = ey < 18 ? "low" : ey > 22 ? "high" : "ideal";
+  const ratioText = ratio ? `현재 레시오는 약 1:${fmt(ratio, 1)}입니다.` : "";
+
+  const adviceMap = {
+    "low-low": {
+      zone: "약함 · 저수율",
+      summary: `농도와 수율이 모두 낮습니다. 컵이 얇고 단맛이 부족하거나 산미가 날카롭게 느껴질 가능성이 있습니다. ${ratioText}`,
+      primary: "분쇄도를 조금 더 가늘게 조정하거나 추출 접촉시간을 늘립니다.",
+      secondary: "물 온도를 1~2℃ 높이거나 1차/2차 푸어의 교반을 소폭 늘립니다.",
+      test: "먼저 분쇄도만 한 단계 가늘게 조정한 뒤, TDS와 수율이 함께 올라가는지 확인하세요."
+    },
+    "low-ideal": {
+      zone: "약함 · 권장 수율",
+      summary: `수율은 적정 범위에 있지만 농도가 낮습니다. 추출 부족보다는 레시피가 길거나 희석감이 큰 상태일 수 있습니다. ${ratioText}`,
+      primary: "총 투입수나 추출액을 줄여 레시오를 짧게 가져갑니다.",
+      secondary: "같은 추출 구조를 유지한 채 도징을 0.5~1g 늘리는 방향도 가능합니다.",
+      test: "물 양을 10~15g 줄이거나 도징을 소폭 올려 농도 변화만 먼저 확인하세요."
+    },
+    "low-high": {
+      zone: "약함 · 고수율",
+      summary: `수율은 높지만 농도가 낮습니다. 긴 레시오로 많이 녹여냈지만 컵은 희석된 상태일 가능성이 큽니다. ${ratioText}`,
+      primary: "추출 후반부를 줄여 총 추출액 또는 총 투입수를 낮춥니다.",
+      secondary: "쓴맛이나 건조감이 있다면 분쇄도를 조금 굵게 하거나 교반을 줄입니다.",
+      test: "추출량을 10~20g 줄여 후반부 과추출 성분과 희석감을 동시에 줄여보세요."
+    },
+    "ideal-low": {
+      zone: "권장 농도 · 저수율",
+      summary: `농도는 괜찮지만 수율이 낮습니다. 컵이 진하게 느껴져도 단맛과 복합성이 덜 열렸을 가능성이 있습니다. ${ratioText}`,
+      primary: "분쇄도를 조금 더 가늘게 하거나 접촉시간을 늘려 수율을 올립니다.",
+      secondary: "물 온도를 1℃ 올리거나 블루밍/초반 포화를 더 안정적으로 가져갑니다.",
+      test: "레시오는 유지하고 분쇄도만 가늘게 조정해 수율만 상승하는지 확인하세요."
+    },
+    "ideal-ideal": {
+      zone: "권장 농도 · 권장 수율",
+      summary: `브루잉 컨트롤 차트 기준으로 균형 구간에 있습니다. 수치상으로는 현재 레시피를 기준점으로 삼기 좋습니다. ${ratioText}`,
+      primary: "현재 레시피를 기준 레시피로 저장하고 관능 목적에 따라 미세 조정합니다.",
+      secondary: "더 선명하게는 분쇄를 약간 굵게, 더 단맛 쪽으로는 분쇄를 약간 가늘게 테스트합니다.",
+      test: "한 번은 현재 레시피를 반복 추출해 재현성을 확인한 뒤, 한 변수만 바꿔 비교하세요."
+    },
+    "ideal-high": {
+      zone: "권장 농도 · 고수율",
+      summary: `농도는 적정하지만 수율이 높습니다. 단맛이 충분할 수 있으나 쓴맛, 건조감, 후미의 거친 느낌이 생길 수 있습니다. ${ratioText}`,
+      primary: "분쇄도를 조금 굵게 하거나 추출 시간을 줄여 수율을 낮춥니다.",
+      secondary: "물 온도를 1℃ 낮추거나 후반 푸어의 교반을 줄입니다.",
+      test: "분쇄도만 한 단계 굵게 하여 농도는 유지하면서 수율이 낮아지는지 확인하세요."
+    },
+    "high-low": {
+      zone: "강함 · 저수율",
+      summary: `농도는 높지만 수율은 낮습니다. 진하지만 덜 열린 컵, 혹은 초반 성분 위주로 농축된 컵일 가능성이 있습니다. ${ratioText}`,
+      primary: "총 투입수나 추출액을 늘려 레시오를 길게 가져가며 수율을 올립니다.",
+      secondary: "블루밍을 충분히 주고 베드 전체가 고르게 젖도록 초반 포화를 개선합니다.",
+      test: "추출액을 10~15g 늘려 수율 상승과 농도 완화를 동시에 확인하세요."
+    },
+    "high-ideal": {
+      zone: "강함 · 권장 수율",
+      summary: `수율은 적정하지만 농도가 높은 편입니다. 진하고 구조감 있는 컵일 수 있으나 마시기 무겁게 느껴질 수 있습니다. ${ratioText}`,
+      primary: "더 편안한 농도를 원하면 총 투입수나 추출액을 소폭 늘립니다.",
+      secondary: "현재 농도가 목적에 맞다면 분쇄와 온도는 유지하고 재현성을 확인합니다.",
+      test: "농도만 낮추고 싶다면 물 양을 10g 늘려보고 향미가 흐려지는지 확인하세요."
+    },
+    "high-high": {
+      zone: "강함 · 고수율",
+      summary: `농도와 수율이 모두 높습니다. 강한 바디와 높은 추출감이 있지만 쓴맛, 텁텁함, 건조감이 동반될 수 있습니다. ${ratioText}`,
+      primary: "분쇄도를 굵게 하거나 물 온도를 낮춰 추출 강도를 낮춥니다.",
+      secondary: "푸어 교반을 줄이고 후반부 추출 시간을 짧게 가져갑니다.",
+      test: "먼저 분쇄도를 한 단계 굵게 조정하고, 그래도 무거우면 온도나 후반 푸어를 조정하세요."
+    }
+  };
+
+  const advice = adviceMap[`${strength}-${extraction}`];
+  const outOfChart = ey < 14 || ey > 26 || tds < 0.90 || tds > 1.80;
+
+  return {
+    ...advice,
+    note: outOfChart
+      ? "현재 점은 차트 표시 범위를 벗어났습니다. 수치 입력 오류가 없는지 먼저 확인한 뒤, 한 번에 하나의 변수만 조정하세요."
+      : "한 번에 하나의 변수만 바꾸고 같은 원두, 같은 물, 같은 드리퍼 조건에서 비교하세요."
+  };
+}
+
+function updateExtractionAdvice(tds, ey, ratio) {
+  const advice = getExtractionAdvice(tds, ey, ratio);
+  const fields = {
+    adviceZone: advice.zone,
+    adviceSummary: advice.summary,
+    advicePrimary: advice.primary,
+    adviceSecondary: advice.secondary,
+    adviceTest: advice.test,
+    adviceNote: advice.note
+  };
+
+  Object.entries(fields).forEach(([id, value]) => {
+    const el = $(id);
+    if (el) el.textContent = value || "-";
+  });
 }
 
 function initTabs() {
@@ -131,6 +241,7 @@ function updateCalculator() {
   $("eyResult").textContent = ey ? `${fmt(ey)}%` : "-";
   $("ratioResult").textContent = ratio ? `1:${fmt(ratio, 1)}` : "-";
   $("positionResult").textContent = positionText(tds, ey);
+  updateExtractionAdvice(tds, ey, ratio);
 
   if (ey && tds) {
     state.currentPoint = {
@@ -566,6 +677,7 @@ function clearCalc() {
   $("eyResult").textContent = "-";
   $("ratioResult").textContent = "-";
   $("positionResult").textContent = "-";
+  updateExtractionAdvice(null, null, null);
   drawChart();
 }
 
@@ -783,7 +895,7 @@ function renderProfileOverview() {
         <span class="recent-title">${esc(r.title || r.bean || "Untitled")}</span>
         <span class="recent-date">${esc((r.date || r.createdAt || "").slice(0, 10))}</span>
       </div>`).join("")
-    : "";
+    : `<div class="recent-item"><span class="recent-title" style="color:#888">아직 아카이브가 없습니다.</span></div>`;
 }
 
 function renderProfileAccount() {
