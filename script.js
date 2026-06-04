@@ -114,7 +114,7 @@ function ensureExtractionAdvicePanel() {
       <h3>추출 해석 및 다음 방향 제시</h3>
       <span id="adviceZone" class="advice-zone">입력 대기</span>
     </div>
-    <p id="adviceSummary" class="advice-summary">도징, 추출액, TDS를 입력하면 현재 차트 위치를 기준으로 다음 조정 방향을 제안합니다.</p>
+    <p id="adviceSummary" class="advice-summary">도징, 추출액, TDS를 입력하면 Brewing / Espresso 관점에서 현재 위치를 해석하고 다음 조정 방향을 제안합니다.</p>
     <div class="advice-grid">
       <div><span>우선 조정 변수</span><strong id="advicePrimary">-</strong></div>
       <div><span>보조 조정 변수</span><strong id="adviceSecondary">-</strong></div>
@@ -145,7 +145,7 @@ function setAdviceText(data) {
 function resetExtractionAdvice() {
   setAdviceText({
     zone: "입력 대기",
-    summary: "도징, 추출액, TDS를 입력하면 현재 차트 위치를 기준으로 다음 조정 방향을 제안합니다.",
+    summary: "도징, 추출액, TDS를 입력하면 Brewing / Espresso 관점에서 현재 위치를 해석하고 다음 조정 방향을 제안합니다.",
     primary: "-",
     secondary: "-",
     test: "-",
@@ -262,6 +262,11 @@ function updateExtractionAdvice(tds, ey, ratio) {
     resetExtractionAdvice();
     return;
   }
+
+  // Brewing Control Chart는 필터커피 구간을 기준으로 하지만,
+  // 계산기에 에스프레소 수치가 들어올 수 있으므로 TDS와 레시오로 관점을 분리합니다.
+  // - Brewing: 보통 낮은 TDS와 긴 레시오
+  // - Espresso: 높은 TDS 또는 짧은 레시오
   const isEspressoRange = tds >= 3 || ratio <= 8;
   const advice = isEspressoRange ? getEspressoAdvice(tds, ey, ratio) : getBrewingAdvice(tds, ey, ratio);
   setAdviceText(advice);
@@ -1093,6 +1098,7 @@ async function deleteAccount() {
 
 async function init() {
   setDateDefaults(); initTabs();
+  resetExtractionAdvice();
 
   ["dose","beverage","tds"].forEach(id => {
     $(id).addEventListener("input", updateCalculator);

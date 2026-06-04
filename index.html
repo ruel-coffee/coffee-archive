@@ -69,6 +69,29 @@
             <div><span>차트 위치</span><strong id="positionResult">-</strong></div>
           </div>
 
+          <section id="extractionAdvice" class="extraction-advice" aria-live="polite">
+            <div class="advice-head">
+              <h3>추출 해석 및 다음 방향 제시</h3>
+              <span id="adviceZone" class="advice-zone">입력 대기</span>
+            </div>
+            <p id="adviceSummary" class="advice-summary">도징, 추출액, TDS를 입력하면 Brewing / Espresso 관점에서 현재 위치를 해석하고 다음 조정 방향을 제안합니다.</p>
+            <div class="advice-grid">
+              <div>
+                <span>우선 조정 변수</span>
+                <strong id="advicePrimary">-</strong>
+              </div>
+              <div>
+                <span>보조 조정 변수</span>
+                <strong id="adviceSecondary">-</strong>
+              </div>
+              <div>
+                <span>테스트 방향</span>
+                <strong id="adviceTest">-</strong>
+              </div>
+            </div>
+            <p id="adviceNote" class="advice-note">한 번에 하나의 변수만 바꾸면 다음 추출에서 원인을 더 정확히 볼 수 있습니다.</p>
+          </section>
+
           <div class="actions">
             <button type="button" id="clearCalc" class="secondary">초기화</button>
           </div>
