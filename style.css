@@ -1326,3 +1326,72 @@ button.header-button:focus-visible,
   background: #000 !important;
   color: #fff !important;
 }
+
+/* =============================================
+   v29 PROFILE RECENT EMPTY / MOBILE ALIGNMENT CHECK
+   요청 범위: 프로필 최근 아카이브 빈 문구 제거, 모바일 정렬 보강
+   ============================================= */
+.recent-list:empty {
+  display: none;
+  border: 0;
+}
+
+@media (max-width: 760px) {
+  .site-header,
+  .nav,
+  .nav a,
+  button.nickname-badge,
+  .header-button,
+  .profile-layout,
+  .profile-sidebar,
+  .profile-side-nav,
+  .profile-side-footer,
+  .profile-content,
+  .profile-panel,
+  .overview-stats,
+  .account-rows,
+  .recent-list,
+  .recent-item {
+    max-width: 100%;
+  }
+
+  .nav a,
+  button.nickname-badge,
+  .header-button,
+  .profile-nav-btn,
+  .profile-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .header-button:active,
+  #logoutBtn:active,
+  .profile-action-btn:not(.danger):active,
+  #profileLogoutBtn:active {
+    background: #000 !important;
+    color: #fff !important;
+  }
+
+  .profile-content {
+    overflow: visible;
+  }
+
+  .profile-panel.active {
+    height: auto;
+  }
+
+  .overview-stats,
+  .account-rows,
+  .recent-list {
+    overflow: hidden;
+  }
+
+  .recent-title,
+  .recent-date,
+  .account-value {
+    min-width: 0;
+  }
+}

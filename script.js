@@ -959,7 +959,7 @@ function renderProfileOverview() {
         <span class="recent-title">${esc(r.title || r.bean || "Untitled")}</span>
         <span class="recent-date">${esc((r.date || r.createdAt || "").slice(0, 10))}</span>
       </div>`).join("")
-    : `<div class="recent-item"><span class="recent-title" style="color:#888">아직 아카이브가 없습니다.</span></div>`;
+    : "";
 }
 
 function renderProfileAccount() {
