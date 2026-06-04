@@ -100,119 +100,171 @@ function positionText(tds, ey) {
   return `${strength} / ${extraction}`;
 }
 
-function determineAdviceMode(tds) {
-  if (!tds || tds <= 0) return "brewing";
-  return tds > 2.2 ? "espresso" : "brewing";
+
+function ensureExtractionAdvicePanel() {
+  if ($("extractionAdvice")) return;
+  const resultGrid = document.querySelector("#calcForm .result-grid");
+  const actions = document.querySelector("#calcForm .actions");
+  const panel = document.createElement("section");
+  panel.id = "extractionAdvice";
+  panel.className = "extraction-advice";
+  panel.setAttribute("aria-live", "polite");
+  panel.innerHTML = `
+    <div class="advice-head">
+      <h3>추출 해석 및 다음 방향 제시</h3>
+      <span id="adviceZone" class="advice-zone">입력 대기</span>
+    </div>
+    <p id="adviceSummary" class="advice-summary">도징, 추출액, TDS를 입력하면 현재 차트 위치를 기준으로 다음 조정 방향을 제안합니다.</p>
+    <div class="advice-grid">
+      <div><span>우선 조정 변수</span><strong id="advicePrimary">-</strong></div>
+      <div><span>보조 조정 변수</span><strong id="adviceSecondary">-</strong></div>
+      <div><span>테스트 방향</span><strong id="adviceTest">-</strong></div>
+    </div>
+    <p id="adviceNote" class="advice-note">한 번에 하나의 변수만 바꾸면 다음 추출에서 원인을 더 정확히 볼 수 있습니다.</p>
+  `;
+  if (actions) actions.parentNode.insertBefore(panel, actions);
+  else if (resultGrid) resultGrid.insertAdjacentElement("afterend", panel);
 }
 
-function strengthBand(tds, mode = "brewing") {
-  if (!tds) return "none";
-  if (mode === "espresso") {
-    if (tds < 7) return "weak";
-    if (tds > 12) return "strong";
-    return "ideal";
-  }
-  if (tds < 1.15) return "weak";
-  if (tds > 1.35) return "strong";
-  return "ideal";
+function setAdviceText(data) {
+  ensureExtractionAdvicePanel();
+  const pairs = {
+    adviceZone: data.zone,
+    adviceSummary: data.summary,
+    advicePrimary: data.primary,
+    adviceSecondary: data.secondary,
+    adviceTest: data.test,
+    adviceNote: data.note
+  };
+  Object.entries(pairs).forEach(([id, value]) => {
+    const el = $(id);
+    if (el) el.textContent = value || "-";
+  });
 }
 
-function extractionBand(ey) {
-  if (!ey) return "none";
-  if (ey < 18) return "low";
-  if (ey > 22) return "high";
-  return "ideal";
+function resetExtractionAdvice() {
+  setAdviceText({
+    zone: "입력 대기",
+    summary: "도징, 추출액, TDS를 입력하면 현재 차트 위치를 기준으로 다음 조정 방향을 제안합니다.",
+    primary: "-",
+    secondary: "-",
+    test: "-",
+    note: "한 번에 하나의 변수만 바꾸면 다음 추출에서 원인을 더 정확히 볼 수 있습니다."
+  });
 }
 
-function bandLabel(strength, extraction, mode) {
-  const strengthLabel = {
-    weak: mode === "espresso" ? "낮은 농도" : "약함",
-    ideal: mode === "espresso" ? "권장 농도권" : "권장 농도",
-    strong: mode === "espresso" ? "높은 농도" : "강함",
-    none: "-"
-  }[strength];
+function getBrewingAdvice(tds, ey, ratio) {
+  const strength = tds < 1.15 ? "weak" : tds > 1.35 ? "strong" : "ideal";
+  const extraction = ey < 18 ? "under" : ey > 22 ? "over" : "ideal";
+  const zoneLabel = {
+    weak: "약한 농도", ideal: "권장 농도", strong: "강한 농도",
+    under: "저수율", over: "고수율"
+  };
 
-  const extractionLabel = {
-    low: "저수율",
-    ideal: "권장 수율",
-    high: "고수율",
-    none: "-"
-  }[extraction];
-
-  const modeLabel = mode === "espresso" ? "Espresso" : "Brewing";
-  return `${modeLabel} · ${strengthLabel} / ${extractionLabel}`;
-}
-
-function getExtractionAdvice(tds, ey, ratio) {
-  if (!tds || !ey) {
-    return {
-      zone: "입력 대기",
-      summary: "도징, 추출액, TDS를 입력하면 브루잉 컨트롤 차트와 에스프레소 해석 기준을 함께 참고해 다음 조정 방향을 제안합니다.",
-      primary: "-",
-      secondary: "-",
-      test: "-",
-      note: "브루잉은 차트 기준으로, 에스프레소는 같은 수율 개념을 참고하되 농도 범위가 다르기 때문에 별도로 해석합니다."
-    };
-  }
-
-  const mode = determineAdviceMode(tds);
-  const strength = strengthBand(tds, mode);
-  const extraction = extractionBand(ey);
-  const ratioText = ratio ? ` 현재 레시오는 약 1:${fmt(ratio, 1)}입니다.` : "";
+  const map = {
+    "weak-under": {
+      summary: "농도와 수율이 모두 낮은 구간입니다. 컵이 얇고, 단맛과 구조가 부족하거나 산미가 날카롭게 느껴질 가능성이 있습니다.",
+      primary: "분쇄도를 조금 더 가늘게 조정하거나, 물 온도를 1~2℃ 높여 추출력을 올립니다.",
+      secondary: "푸어 교반을 소폭 늘리거나 총 접촉시간을 늘려 수용성 성분 추출을 보완합니다.",
+      test: "분쇄도만 한 단계 가늘게 바꾼 뒤 같은 도징, 같은 물, 같은 드리퍼 조건에서 비교하세요."
+    },
+    "weak-ideal": {
+      summary: "수율은 권장 범위지만 농도가 낮은 구간입니다. 추출 부족보다는 레시피가 길거나 희석감이 큰 상태일 수 있습니다.",
+      primary: "총 투입수 또는 추출액을 줄여 레시오를 짧게 가져갑니다.",
+      secondary: "같은 레시오를 유지하고 싶다면 도징을 소폭 늘려 농도감을 확보합니다.",
+      test: "현재 레시피를 기준 레시피로 저장하고, 물 양을 10~15g 줄여 농도 변화를 확인하세요."
+    },
+    "weak-over": {
+      summary: "수율은 높지만 농도는 낮은 구간입니다. 너무 긴 레시오로 많이 녹였지만 컵은 묽게 느껴질 수 있습니다.",
+      primary: "추출액 또는 총 투입수를 줄여 후반부 추출을 제한합니다.",
+      secondary: "분쇄도를 약간 굵게 하거나 후반 푸어 교반을 줄여 과다 추출감을 낮춥니다.",
+      test: "레시오를 먼저 줄이고, 쓴맛·건조감이 남는다면 분쇄도나 온도를 추가로 조정하세요."
+    },
+    "ideal-under": {
+      summary: "농도는 권장 범위지만 수율이 낮은 구간입니다. 강도는 있으나 단맛, 투명도, 복합성이 덜 열렸을 수 있습니다.",
+      primary: "분쇄도를 조금 더 가늘게 하거나 접촉시간을 늘려 수율을 올립니다.",
+      secondary: "물 온도를 1℃ 정도 높이거나 1차/2차 푸어의 교반을 소폭 늘립니다.",
+      test: "농도는 유지되는지 보면서 수율만 18% 이상으로 올리는 방향으로 비교하세요."
+    },
+    "ideal-ideal": {
+      summary: "브루잉 컨트롤 차트 기준으로 균형 구간에 있습니다. 수치상으로는 현재 레시피를 기준점으로 삼기 좋습니다.",
+      primary: "현재 레시피를 기준 레시피로 저장하고 관능 목적에 따라 미세 조정합니다.",
+      secondary: "더 선명하게는 분쇄를 약간 굵게, 더 단맛 쪽으로는 분쇄를 약간 가늘게 테스트합니다.",
+      test: "한 번은 현재 레시피를 반복 추출해 재현성을 확인한 뒤, 한 변수만 바꿔 비교하세요."
+    },
+    "ideal-over": {
+      summary: "농도는 권장 범위지만 수율이 높은 구간입니다. 컵에서 건조감, 쓴맛, 거친 후미가 나타날 수 있습니다.",
+      primary: "분쇄도를 조금 더 굵게 하거나 물 온도를 낮춰 추출 강도를 줄입니다.",
+      secondary: "후반부 푸어 교반을 줄이고, 총 추출 시간을 짧게 가져갑니다.",
+      test: "분쇄도를 먼저 굵게 바꾸고, 그래도 후미가 무거우면 추출량을 줄여보세요."
+    },
+    "strong-under": {
+      summary: "농도는 높지만 수율이 낮은 구간입니다. 진하지만 덜 풀린 컵, 혹은 막힘과 불균일 추출 가능성이 있습니다.",
+      primary: "레시오를 길게 하거나 추출액을 늘려 수율을 확보합니다.",
+      secondary: "흐름이 막히는 느낌이면 분쇄를 약간 굵게 하고 푸어를 안정적으로 가져갑니다.",
+      test: "추출액을 10~15g 늘려보고, 농도가 과하게 높게 유지되면 분쇄도도 함께 점검하세요."
+    },
+    "strong-ideal": {
+      summary: "수율은 권장 범위이고 농도는 높은 구간입니다. 진한 구조감이 목적이라면 유지할 수 있지만, 마시기 무겁게 느껴질 수 있습니다.",
+      primary: "더 편안한 컵을 원하면 레시오를 길게 하거나 도징을 소폭 줄입니다.",
+      secondary: "농도감은 유지하되 선명도를 원하면 분쇄도를 약간 굵게 테스트합니다.",
+      test: "현재 컵을 진한 기준점으로 저장하고, 물 양을 10g 늘린 버전과 비교하세요."
+    },
+    "strong-over": {
+      summary: "농도와 수율이 모두 높은 구간입니다. 강하고 무거우며 쓴맛, 텁텁함, 건조감이 나올 가능성이 큽니다.",
+      primary: "분쇄도를 굵게 하고, 물 온도와 교반을 줄여 추출 강도를 낮춥니다.",
+      secondary: "추출액을 줄여 후반부 과다 추출을 제한하거나 도징을 낮춰 농도감을 완화합니다.",
+      test: "분쇄도를 굵게 바꾸는 테스트를 먼저 하고, 다음 추출에서 추출량을 줄이는 테스트를 분리해서 보세요."
+    }
+  };
   const key = `${strength}-${extraction}`;
-
-  const brewingAdvice = {
-    "weak-low": ["브루잉 기준으로 농도와 수율이 모두 낮습니다. 컵이 얇고 산미가 날카롭거나 중심이 비어 보일 수 있습니다.", "분쇄도를 조금 더 가늘게 조정하거나 물 온도를 1~2℃ 높입니다.", "푸어를 조금 더 적극적으로 하거나 접촉시간을 늘립니다.", "분쇄도만 한 단계 가늘게 바꾼 뒤 TDS와 수율이 함께 올라가는지 확인하세요."],
-    "weak-ideal": ["브루잉 기준으로 수율은 권장 구간이지만 농도가 낮습니다. 추출 부족보다 레시피가 길어 희석된 상태일 가능성이 큽니다.", "총 투입수 또는 추출액을 줄여 레시오를 짧게 가져갑니다.", "같은 물 양을 유지하고 싶다면 도징을 소폭 늘려 농도를 올립니다.", "물 양을 10~15g 줄이거나 도징을 0.5~1g 늘려 농도 변화를 비교하세요."],
-    "weak-high": ["브루잉 기준으로 많이 녹였지만 농도는 낮습니다. 긴 레시오로 인해 후반부 성분까지 끌고 오면서 컵이 묽어졌을 가능성이 있습니다.", "추출액을 줄이고 레시오를 짧게 잡아 후반부 추출을 줄입니다.", "후반 푸어의 교반을 줄이거나 물 온도를 약간 낮춥니다.", "총 추출량을 10~20g 줄이고 후미가 깨끗해지는지 확인하세요."],
-    "ideal-low": ["브루잉 기준으로 농도는 적정하지만 수율이 낮습니다. 진하기는 있으나 단맛과 복합성이 덜 열렸을 수 있습니다.", "분쇄도를 조금 더 가늘게 하거나 접촉시간을 늘려 수율을 올립니다.", "물 온도를 1℃ 정도 높이거나 초반 푸어에서 균일한 포화를 확보합니다.", "레시오는 유지하고 분쇄도만 가늘게 바꿔 수율이 18% 이상으로 올라가는지 보세요."],
-    "ideal-ideal": ["브루잉 컨트롤 차트 기준으로 균형 구간에 있습니다. 수치상으로는 현재 레시피를 기준점으로 삼기 좋습니다.", "현재 레시피를 기준 레시피로 저장하고 관능 목적에 따라 미세 조정합니다.", "더 선명하게는 분쇄를 약간 굵게, 더 단맛 쪽으로는 분쇄를 약간 가늘게 테스트합니다.", "한 번은 현재 레시피를 반복 추출해 재현성을 확인한 뒤 한 변수만 바꿔 비교하세요."],
-    "ideal-high": ["브루잉 기준으로 농도는 좋지만 수율이 높습니다. 컵에 쓴맛, 건조감, 후미의 거친 질감이 있는지 확인이 필요합니다.", "분쇄도를 조금 더 굵게 하거나 총 추출 시간을 줄입니다.", "후반부 교반과 물 온도를 낮춰 과다 추출 성향을 줄입니다.", "분쇄도만 굵게 바꿔 수율이 22% 아래로 내려오면서 단맛이 유지되는지 확인하세요."],
-    "strong-low": ["브루잉 기준으로 농도는 높지만 수율은 낮습니다. 진하지만 충분히 열리지 않았거나 국소적으로만 추출된 상태일 수 있습니다.", "레시오를 조금 길게 하거나 추출액을 늘려 수율을 확보합니다.", "흐름이 막히는 느낌이면 분쇄를 아주 약간 굵게 하고 푸어를 균일하게 가져갑니다.", "추출액을 10g 늘려 수율이 오르는지 보고 텁텁함이 있으면 분쇄를 소폭 굵게 조정하세요."],
-    "strong-ideal": ["브루잉 기준으로 수율은 적정하지만 농도가 높습니다. 구조감 있는 컵이지만 마시기 무겁거나 답답할 수 있습니다.", "더 편안한 컵을 원하면 총 투입수 또는 추출액을 소폭 늘려 농도를 낮춥니다.", "현재 강도를 유지하려면 기준 레시피로 저장하고 향미 선명도만 미세 조정합니다.", "물 양을 10g 늘린 컵과 현재 컵을 비교해 농도감과 향미 선명도를 체크하세요."],
-    "strong-high": ["브루잉 기준으로 농도와 수율이 모두 높습니다. 강하고 무거우며 쓴맛, 건조감, 떫은 질감이 동반될 수 있습니다.", "분쇄도를 굵게 하고 추출 시간을 줄여 과다 추출을 완화합니다.", "물 온도를 낮추거나 후반부 푸어 교반을 줄입니다.", "분쇄도만 굵게 바꾼 컵과 물 온도만 낮춘 컵을 분리해서 비교하세요."]
-  };
-
-  const espressoAdvice = {
-    "weak-low": ["에스프레소 기준으로 농도와 수율이 모두 낮습니다. 바디가 약하고 산미가 비어 보일 수 있으며, 수프샷처럼 의도한 저농도 추출인지 먼저 확인해야 합니다.", "일반 에스프레소 방향이면 분쇄를 가늘게 하거나 도징을 늘려 저항과 농도를 올립니다.", "저압·긴 레시오 추출이라면 추출량을 줄이거나 피크 이후의 희석 구간을 줄입니다.", "추출 목적을 먼저 정하고, 일반 에스프레소는 분쇄도, 저농도 에스프레소는 추출량을 우선 조정하세요."],
-    "weak-ideal": ["에스프레소 기준으로 수율은 확보됐지만 농도는 낮습니다. 추출 자체보다 레시오가 길거나 희석된 성격이 강할 수 있습니다.", "추출량을 줄여 레시오를 짧게 잡거나 도징을 소폭 늘립니다.", "향미가 선명하다면 저농도 에스프레소로 유지할 수 있고, 바디가 부족하면 농도만 올립니다.", "동일 분쇄에서 추출량만 줄인 컵을 비교해 농도와 밸런스를 확인하세요."],
-    "weak-high": ["에스프레소 기준으로 수율은 높지만 농도는 낮습니다. 긴 레시오로 후반부 성분까지 많이 끌고 온 상태일 수 있습니다.", "추출량을 줄여 후반부 희석과 과다 추출 성향을 낮춥니다.", "쓴맛이나 건조감이 있으면 분쇄를 바꾸기보다 먼저 추출 종료 지점을 앞당깁니다.", "같은 세팅에서 추출량만 5~10g 줄여 후미가 깨끗해지는지 보세요."],
-    "ideal-low": ["에스프레소 기준으로 농도는 유지되지만 수율이 낮습니다. 강도는 있으나 단맛과 향미 전개가 부족할 수 있습니다.", "분쇄를 조금 더 가늘게 하거나 추출 시간을 늘려 수율을 올립니다.", "채널링이 의심되면 분쇄보다 도징, 분배, 탬핑, 헤드스페이스를 먼저 점검합니다.", "분쇄도 조정 전후의 추출 흐름과 크레마, 후미 단맛을 함께 비교하세요."],
-    "ideal-ideal": ["에스프레소 기준으로도 수율과 농도 균형이 좋은 기준점입니다. 현재 레시피를 기준으로 관능 목적에 맞춰 세부 조정하기 좋습니다.", "현재 레시피를 기준으로 저장하고 맛의 방향에 따라 레시오 또는 분쇄를 미세 조정합니다.", "더 선명하게는 추출량 소폭 증가, 더 묵직하게는 추출량 소폭 감소를 테스트합니다.", "동일 레시피를 반복 추출해 재현성을 먼저 확인하세요."],
-    "ideal-high": ["에스프레소 기준으로 농도는 적정하지만 수율이 높습니다. 쓴맛, 건조감, 후미의 거친 질감이 있는지 확인이 필요합니다.", "추출량을 줄이거나 분쇄를 약간 굵게 하여 수율을 낮춥니다.", "고압 추출에서는 퍽 압축과 미분 이동이 영향을 줄 수 있어 도징과 헤드스페이스도 함께 봅니다.", "추출량을 먼저 줄이고, 그래도 거칠면 분쇄와 도징을 따로 비교하세요."],
-    "strong-low": ["에스프레소 기준으로 농도는 높지만 수율은 낮습니다. 매우 진하지만 충분히 열리지 않아 산미가 날카롭거나 단맛이 부족할 수 있습니다.", "레시오를 조금 길게 하거나 추출 시간을 늘려 수율을 확보합니다.", "흐름이 너무 느리다면 분쇄를 아주 약간 굵게 하여 균일성을 확보합니다.", "추출량을 소폭 늘린 컵과 분쇄를 소폭 굵게 한 컵을 나눠 비교하세요."],
-    "strong-ideal": ["에스프레소 기준으로 수율은 좋고 농도는 높은 편입니다. 진한 구조감이 장점이지만 마시기 무겁다면 레시오 조정이 필요합니다.", "더 편안한 컵을 원하면 추출량을 소폭 늘려 농도를 낮춥니다.", "강한 바디를 의도했다면 유지하고, 후미가 답답하면 분쇄를 아주 약간 굵게 봅니다.", "현재 컵을 기준으로 추출량만 2~5g 늘려 농도와 단맛 변화를 확인하세요."],
-    "strong-high": ["에스프레소 기준으로 농도와 수율이 모두 높습니다. 강도, 쓴맛, 건조감, 텁텁함이 같이 올라올 가능성이 큽니다.", "분쇄를 굵게 하거나 추출량을 줄여 과다 추출 성향을 낮춥니다.", "고압 추출에서는 압력 상승, 퍽 압축, 미분 이동도 함께 점검합니다.", "분쇄도와 추출량을 동시에 바꾸지 말고 먼저 추출량을 줄인 뒤 분쇄를 조정하세요."]
-  };
-
-  const selected = (mode === "espresso" ? espressoAdvice : brewingAdvice)[key] || brewingAdvice["ideal-ideal"];
+  const data = map[key];
   return {
-    zone: bandLabel(strength, extraction, mode),
-    summary: `${selected[0]}${ratioText}`,
-    primary: selected[1],
-    secondary: selected[2],
-    test: selected[3],
-    note: mode === "espresso"
-      ? "에스프레소는 브루잉 컨트롤 차트의 농도 범위와 다르므로, 차트 위치는 수율 개념 참고용으로 보고 실제 조정은 레시오·분쇄·도징·압력·헤드스페이스를 함께 확인하세요."
-      : "브루잉은 차트 위치를 기준으로 보되, 원두·로스팅·드리퍼·물 조건에 따라 권장 구간 밖에서도 좋은 컵이 나올 수 있습니다."
+    zone: `${zoneLabel[strength]} · ${extraction === "ideal" ? "권장 수율" : zoneLabel[extraction]} · Brewing 기준`,
+    ...data,
+    note: `현재 레시오는 약 1:${fmt(ratio, 1)}입니다. 브루잉에서는 레시오가 농도에 가장 직접적으로 작용하고, 분쇄도·온도·교반·시간은 수율과 균일성에 크게 관여합니다.`
+  };
+}
+
+function getEspressoAdvice(tds, ey, ratio) {
+  const extraction = ey < 18 ? "under" : ey > 22 ? "over" : "ideal";
+  const strength = tds < 7 ? "low" : tds > 12 ? "high" : "espresso";
+  const map = {
+    under: {
+      summary: "에스프레소 기준에서 수율이 낮은 편입니다. 농도감과 별개로 산미가 날카롭거나 단맛이 충분히 열리지 않았을 수 있습니다.",
+      primary: "분쇄도를 가늘게 하거나 추출량을 늘려 수율을 올립니다.",
+      secondary: "저항이 너무 낮다면 도징을 소폭 올리거나 바스켓 헤드스페이스를 점검합니다.",
+      test: "분쇄도만 가늘게 바꾼 버전과 추출량만 늘린 버전을 분리해서 비교하세요."
+    },
+    ideal: {
+      summary: "에스프레소 기준에서 수율은 균형 범위에 있습니다. 이 상태에서는 농도와 질감, 레시오 목적에 따라 방향을 나누는 것이 좋습니다.",
+      primary: "현재 컵을 기준점으로 저장하고, 더 진하게는 레시오를 짧게, 더 열리게는 레시오를 길게 조정합니다.",
+      secondary: "압력, 프리인퓨전, 헤드스페이스는 퍽 안정성과 질감 변화를 확인하는 보조 변수로 봅니다.",
+      test: "같은 분쇄도에서 추출량만 2~4g 단위로 조정해 농도와 후미 변화를 비교하세요."
+    },
+    over: {
+      summary: "에스프레소 기준에서 수율이 높은 편입니다. 쓴맛, 건조감, 거친 후미가 올라올 가능성이 있습니다.",
+      primary: "분쇄도를 굵게 하거나 추출량을 줄여 후반부 추출을 제한합니다.",
+      secondary: "고압 구간이 길다면 압력 프로파일을 낮추거나 램프다운을 활용해 과한 성분 추출을 줄입니다.",
+      test: "추출량을 먼저 줄이고, 그래도 건조하면 분쇄도와 압력 프로파일을 따로 조정하세요."
+    }
+  };
+  const label = strength === "low" ? "낮은 에스프레소 농도" : strength === "high" ? "높은 에스프레소 농도" : "에스프레소 농도";
+  return {
+    zone: `${label} · ${extraction === "under" ? "저수율" : extraction === "over" ? "고수율" : "권장 수율"} · Espresso 기준`,
+    ...map[extraction],
+    note: `현재 레시오는 약 1:${fmt(ratio, 1)}입니다. 에스프레소는 브루잉 컨트롤 차트의 농도 축과 범위가 다르므로, 수율과 레시오를 중심으로 해석하고 분쇄도·도징·압력·헤드스페이스를 함께 봅니다.`
   };
 }
 
 function updateExtractionAdvice(tds, ey, ratio) {
-  const advice = getExtractionAdvice(tds, ey, ratio);
-  const zone = $("adviceZone");
-  const summary = $("adviceSummary");
-  const primary = $("advicePrimary");
-  const secondary = $("adviceSecondary");
-  const test = $("adviceTest");
-  const note = $("adviceNote");
-
-  if (zone) zone.textContent = advice.zone;
-  if (summary) summary.textContent = advice.summary;
-  if (primary) primary.textContent = advice.primary;
-  if (secondary) secondary.textContent = advice.secondary;
-  if (test) test.textContent = advice.test;
-  if (note) note.textContent = advice.note;
+  if (!tds || !ey || !ratio) {
+    resetExtractionAdvice();
+    return;
+  }
+  const isEspressoRange = tds >= 3 || ratio <= 8;
+  const advice = isEspressoRange ? getEspressoAdvice(tds, ey, ratio) : getBrewingAdvice(tds, ey, ratio);
+  setAdviceText(advice);
 }
 
 function initTabs() {
@@ -246,7 +298,6 @@ function updateCalculator() {
   $("eyResult").textContent = ey ? `${fmt(ey)}%` : "-";
   $("ratioResult").textContent = ratio ? `1:${fmt(ratio, 1)}` : "-";
   $("positionResult").textContent = positionText(tds, ey);
-  updateExtractionAdvice(tds, ey, ratio);
 
   if (ey && tds) {
     state.currentPoint = {
@@ -262,6 +313,7 @@ function updateCalculator() {
     state.currentPoint = null;
   }
 
+  updateExtractionAdvice(tds, ey, ratio);
   requestAnimationFrame(drawChart);
 }
 
@@ -403,12 +455,12 @@ function drawChart() {
   ctx.fillText("Strong &", x(23.5), y(1.66));
   ctx.fillText("Overextracted", x(23.5), y(1.61));
   ctx.fillText("강함 & 과다추출", x(23.5), y(1.56));
-  ctx.fillText("Strong", x(20.0), y(1.66));
-  ctx.fillText("강함", x(20.0), y(1.61));
   ctx.fillText("Underextracted", x(16.5), y(1.36));
   ctx.fillText("과소추출", x(16.5), y(1.31));
   ctx.fillText("Overextracted", x(24.0), y(1.36));
   ctx.fillText("과다추출", x(24.0), y(1.31));
+  ctx.fillText("Strong", x(20.0), y(1.66));
+  ctx.fillText("강함", x(20.0), y(1.61));
   ctx.fillText("Ideal", x(20.0), y(1.28));
   ctx.fillText("이상적", x(20.0), y(1.23));
   ctx.fillText("Weak &", x(16.2), y(1.02));
@@ -684,6 +736,7 @@ function clearCalc() {
   $("eyResult").textContent = "-";
   $("ratioResult").textContent = "-";
   $("positionResult").textContent = "-";
+  resetExtractionAdvice();
   drawChart();
 }
 
