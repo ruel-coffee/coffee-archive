@@ -1017,24 +1017,6 @@ function initProfileModal() {
     btn.addEventListener("click", () => switchProfilePanel(btn.dataset.panel))
   );
 
-  // 아바타 업로드 → localStorage 저장 → 즉시 반영
-  $("profileAvatarInput").addEventListener("change", (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    // 5MB 초과 시 경고
-    if (file.size > 5 * 1024 * 1024) {
-      alert("5MB 이하의 이미지를 선택해주세요.");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const dataUrl = ev.target.result;
-      saveAvatarDataUrl(dataUrl);   // localStorage 저장
-      applyAvatarToModal(dataUrl);  // 모달 즉시 반영
-    };
-    reader.readAsDataURL(file);
-  });
-
   // 배경 클릭으로 닫기
   $("profileModal").addEventListener("click", (e) => {
     if (e.target === $("profileModal")) closeProfile();
