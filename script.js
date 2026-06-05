@@ -674,17 +674,23 @@ function dataGrid(r, type) {
 }
 
 function recordCard(r, type) {
-  return `<article class="record">
-    <div class="record-head">
+  const uid = `rec-${esc(r.id)}`;
+  return `<article class="record record-accordion">
+    <div class="record-head record-toggle" data-target="${uid}" aria-expanded="false">
       <div>
         <h3>${esc(r.title || r.bean || "Untitled")}</h3>
         <p class="meta">${esc(r.date || "-")} · ${esc(type)} · ${esc(r.category || "-")}</p>
         <span class="owner-tag">작성자: ${esc(r.owner || "unknown")}</span>
       </div>
-      <button type="button" class="secondary delete-record" data-type="${type.toLowerCase()}" data-id="${esc(r.id)}">삭제</button>
+      <div class="record-head-right">
+        <span class="record-arrow" aria-hidden="true">▼</span>
+        <button type="button" class="secondary delete-record" data-type="${type.toLowerCase()}" data-id="${esc(r.id)}">삭제</button>
+      </div>
     </div>
-    ${dataGrid(r, type)}
-    <div class="record-section"><h4>메모</h4><p>${esc(r.notes || "-")}</p></div>
+    <div class="record-body" id="${uid}" hidden>
+      ${dataGrid(r, type)}
+      <div class="record-section"><h4>메모</h4><p>${esc(r.notes || "-")}</p></div>
+    </div>
   </article>`;
 }
 
@@ -1098,8 +1104,21 @@ async function init() {
   $("espSearch").addEventListener("input", renderEspresso);
   document.addEventListener("click", (e) => {
     const deleteBtn = e.target.closest(".delete-record");
-    if (!deleteBtn) return;
-    deleteRecord(deleteBtn.dataset.type, deleteBtn.dataset.id);
+    if (deleteBtn) {
+      deleteRecord(deleteBtn.dataset.type, deleteBtn.dataset.id);
+      return;
+    }
+    const toggle = e.target.closest(".record-toggle");
+    if (toggle && !e.target.closest(".delete-record")) {
+      const targetId = toggle.dataset.target;
+      const body = document.getElementById(targetId);
+      if (!body) return;
+      const isOpen = !body.hidden;
+      body.hidden = isOpen;
+      toggle.setAttribute("aria-expanded", String(!isOpen));
+      const arrow = toggle.querySelector(".record-arrow");
+      if (arrow) arrow.textContent = isOpen ? "▼" : "▲";
+    }
   });
   window.addEventListener("resize", drawChart);
 

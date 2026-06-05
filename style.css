@@ -1287,7 +1287,46 @@ button.nickname-badge,
 }
 
 /* =============================================
-   v28 LOGOUT BUTTON HOVER FIX
+   RECORD ACCORDION
+   ============================================= */
+.record-accordion .record-head {
+  cursor: pointer;
+  user-select: none;
+}
+
+.record-accordion .record-head:hover {
+  background: #f9f9f9;
+}
+
+.record-head-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.record-arrow {
+  font-size: 12px;
+  color: #888;
+  transition: transform 0.15s;
+  flex-shrink: 0;
+}
+
+.record-body[hidden] {
+  display: none !important;
+}
+
+.record-body {
+  padding-top: 4px;
+}
+
+@media (max-width: 760px) {
+  .record-head-right {
+    flex-direction: row;
+    gap: 8px;
+  }
+}
+
    요청 범위: 상단 나가기 / 프로필 나가기 버튼을 프로필 버튼과 동일한 hover 방식으로 통일
    ============================================= */
 .header-button,
