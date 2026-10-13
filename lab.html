@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="ARKIVON 추출 기록 도구."><title>Brew Lab — ARKIVON</title>
+  <link rel="stylesheet" href="styles.css"><script src="app.js" defer></script>
+</head>
+<body data-page="lab">
+  <header class="site-header" data-header><a class="wordmark" href="index.html">ARKIVON</a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">MENU</button><nav class="main-nav" id="main-nav"><a href="recipes.html">RECIPES</a><a class="active" href="lab.html">BREW LAB</a><a href="archive.html">ARCHIVE</a><a href="community.html">COMMUNITY</a></nav></header>
+  <main>
+    <section class="page-intro reveal"><p class="eyebrow">02 / BREW LAB</p><h1>한 잔을 만드는<br>모든 변수를 기록합니다.</h1><p class="lede">필요한 항목만 남기고, 나만의 항목을 더하세요. 기록은 이 브라우저에 안전하게 보관되며 커뮤니티 글에 바로 첨부할 수 있습니다.</p></section>
+
+    <section class="lab-layout">
+      <div class="lab-side reveal"><p class="section-label">RECORD SETTINGS</p><h2>필드를 직접<br>설계하세요.</h2><p>날씨, 물, 장비, 디게싱, 추출 과정까지. 체크된 항목만 이번 기록에 표시됩니다.</p><div class="field-toggles" data-field-toggles></div><form class="add-field" data-add-field><input aria-label="새 필드 이름" maxlength="20" placeholder="새 항목 이름"><button type="submit">＋</button></form></div>
+      <form class="brew-form reveal" data-brew-form>
+        <div class="form-heading"><div><p class="section-label">NEW RECORD</p><h2>오늘의 추출</h2></div><span data-brew-date></span></div>
+        <div class="form-grid" data-form-grid></div>
+        <label class="form-field form-field--wide"><span>TASTING NOTES</span><textarea name="notes" rows="4" placeholder="향미, 산미, 단맛, 질감을 기록하세요."></textarea></label>
+        <label class="form-field form-field--wide"><span>QUESTION / ISSUE</span><textarea name="issue" rows="3" placeholder="무엇이 아쉬웠나요? 커뮤니티에서 함께 이야기할 질문을 남겨보세요."></textarea></label>
+        <div class="form-actions"><button class="button button--dark" type="submit">SAVE TO ARCHIVE</button><span class="save-status" data-save-status aria-live="polite"></span></div>
+      </form>
+    </section>
+  </main>
+  <footer class="site-footer"><a class="wordmark" href="index.html">ARKIVON</a><p>Your variables.<br>Your archive.</p><a class="text-link" href="archive.html">VIEW ARCHIVE →</a></footer>
+</body>
+</html>
