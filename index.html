@@ -9,8 +9,8 @@
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
 </head>
-<body class="home-page">
-  <header class="site-header site-header--over" data-header>
+<body class="home-page home-page--showroom">
+  <header class="site-header" data-header>
     <a class="wordmark" href="index.html" aria-label="ARKIVON 홈">ARKIVON</a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">MENU</button>
     <nav class="main-nav" id="main-nav" aria-label="주 메뉴">
@@ -21,25 +21,23 @@
     </nav>
   </header>
 
-  <main class="hero" aria-label="ARKIVON 소개">
-    <video class="hero-video" autoplay muted loop playsinline preload="auto">
-      <source src="assets/arkivon-hero.mp4" type="video/mp4">
-    </video>
-    <div class="hero-shade" aria-hidden="true"></div>
-    <div class="hero-copy reveal">
-      <p class="eyebrow">COFFEE, ARCHIVED.</p>
-      <h1>추출의 감각을<br>기록으로 남기다.</h1>
-      <p>레시피를 따라 추출하고, 나만의 변수를 기록하고,<br>커뮤니티와 함께 더 나은 한 잔을 찾습니다.</p>
-      <a class="text-link text-link--light" href="recipes.html">START BREWING <span>↗</span></a>
+  <main class="showroom" aria-label="ARKIVON 소개">
+    <div class="showroom-heading reveal">
+      <div><p class="eyebrow">COFFEE, ARCHIVED.</p><h1>추출의 감각을 기록으로.</h1></div>
+      <p>레시피를 따라 추출하고, 모든 변수를 기록하고,<br>함께 더 나은 한 잔을 찾습니다.</p>
     </div>
-    <div class="hero-meta" aria-hidden="true">
-      <span>SEOUL · KR</span><span>SCROLL TO EXPLORE</span>
+    <section class="showroom-media reveal" aria-label="테츠 카츠야 4:6 레시피 영상">
+      <iframe class="showroom-video" src="https://www.youtube-nocookie.com/embed/123zLI3JoRQ?autoplay=1&amp;mute=1&amp;controls=0&amp;loop=1&amp;playlist=123zLI3JoRQ&amp;modestbranding=1&amp;playsinline=1&amp;rel=0" title="Tetsu Kasuya World Champion Recipe" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      <div class="showroom-caption">
+        <span>01 / FEATURED RECIPE</span>
+        <strong>TETSU KASUYA · 4:6 METHOD</strong>
+        <a href="recipes.html">OPEN GUIDED TIMER →</a>
+      </div>
+    </section>
+    <div class="showroom-links reveal">
+      <a href="lab.html"><span>BREW LAB</span><strong>나의 추출 기록하기</strong><i>↗</i></a>
+      <a href="community.html"><span>OPEN TABLE</span><strong>기록을 함께 이야기하기</strong><i>↗</i></a>
     </div>
-    <a class="hero-tile" href="community.html">
-      <span>01 / OPEN TABLE</span>
-      <strong>오늘의 추출을<br>함께 이야기하기</strong>
-      <i>→</i>
-    </a>
   </main>
 </body>
 </html>
