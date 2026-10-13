@@ -1,396 +1,45 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="레시피를 따라 추출하고, 모든 변수를 기록하고, 함께 더 나은 한 잔을 토론하는 커피 플랫폼 DIAL IN의 인터랙티브 프로토타입"
-    />
-    <meta name="theme-color" content="#e8e8e4" />
-    <title>DIAL IN — Brew better, together.</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@400;500;600&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-    <script src="app.js" defer></script>
-  </head>
-  <body>
-    <a class="skip-link" href="#main">본문으로 바로가기</a>
-    <div class="noise" aria-hidden="true"></div>
-    <div class="cursor" aria-hidden="true"><span></span></div>
-    <div class="page-progress" aria-hidden="true"><span></span></div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080808">
+  <meta name="description" content="ARKIVON — 기록하고, 추출하고, 함께 더 나은 커피를 찾는 곳.">
+  <title>ARKIVON — Coffee, archived.</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body class="home-page">
+  <header class="site-header site-header--over" data-header>
+    <a class="wordmark" href="index.html" aria-label="ARKIVON 홈">ARKIVON</a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">MENU</button>
+    <nav class="main-nav" id="main-nav" aria-label="주 메뉴">
+      <a href="recipes.html">RECIPES</a>
+      <a href="lab.html">BREW LAB</a>
+      <a href="archive.html">ARCHIVE</a>
+      <a href="community.html">COMMUNITY</a>
+    </nav>
+  </header>
 
-    <header class="site-header" data-header>
-      <a class="wordmark magnetic" href="#top" aria-label="DIAL IN 홈">DIAL IN<span>°</span></a>
-      <nav class="desktop-nav" aria-label="주요 메뉴">
-        <a href="#recipes">RECIPES</a>
-        <a href="#lab">BREW LAB</a>
-        <a href="#archive">ARCHIVE</a>
-        <a href="#community">COMMUNITY</a>
-      </nav>
-      <div class="header-actions">
-        <span class="live-clock mono" data-clock>SEO 00:00</span>
-        <button class="icon-button magnetic" type="button" data-menu-button aria-label="메뉴 열기" aria-expanded="false">
-          <span></span><span></span>
-        </button>
-      </div>
-    </header>
-
-    <div class="menu-overlay" data-menu-overlay aria-hidden="true">
-      <nav aria-label="모바일 메뉴">
-        <a href="#recipes">01 — Recipes</a>
-        <a href="#lab">02 — Brew lab</a>
-        <a href="#archive">03 — Archive</a>
-        <a href="#community">04 — Community</a>
-      </nav>
-      <p>Every variable tells a story.</p>
+  <main class="hero" aria-label="ARKIVON 소개">
+    <video class="hero-video" autoplay muted loop playsinline preload="auto">
+      <source src="assets/arkivon-hero.mp4" type="video/mp4">
+    </video>
+    <div class="hero-shade" aria-hidden="true"></div>
+    <div class="hero-copy reveal">
+      <p class="eyebrow">COFFEE, ARCHIVED.</p>
+      <h1>추출의 감각을<br>기록으로 남기다.</h1>
+      <p>레시피를 따라 추출하고, 나만의 변수를 기록하고,<br>커뮤니티와 함께 더 나은 한 잔을 찾습니다.</p>
+      <a class="text-link text-link--light" href="recipes.html">START BREWING <span>↗</span></a>
     </div>
-
-    <main id="main">
-      <section class="hero" id="top" aria-labelledby="hero-title">
-        <div class="hero-grid" aria-hidden="true"></div>
-        <div class="hero-kicker mono reveal">THE OPEN BREW ARCHIVE · SEOUL / ONLINE</div>
-
-        <div class="hero-copy reveal">
-          <h1 id="hero-title">당신의 다음 한 잔을<br /><em>우연에 맡기지 마세요.</em></h1>
-          <p>
-            검증된 레시피의 흐름을 따라 추출하고,<br />
-            물부터 날씨까지 모든 변수를 기록하세요.
-          </p>
-          <button class="pill-button magnetic" type="button" data-start-brew>
-            <span>추출 시작</span><span class="arrow">↗</span>
-          </button>
-        </div>
-
-        <div class="hero-media reveal" data-hero-media>
-          <div class="media-chrome">
-            <span class="mono">FEATURED MOTION</span>
-            <span class="mono" data-media-count>01 / 03</span>
-          </div>
-          <div class="media-window">
-            <iframe
-              data-media-frame
-              src="https://www.youtube-nocookie.com/embed/123zLI3JoRQ?autoplay=1&mute=1&controls=0&loop=1&playlist=123zLI3JoRQ&modestbranding=1&playsinline=1&rel=0"
-              title="Tetsu Kasuya 커피 레시피 영상"
-              loading="eager"
-              allow="autoplay; encrypted-media; picture-in-picture"
-              referrerpolicy="strict-origin-when-cross-origin"
-            ></iframe>
-            <div class="media-filter" aria-hidden="true"></div>
-            <div class="media-center-mark" aria-hidden="true"><span></span></div>
-            <a
-              class="media-play magnetic"
-              data-media-link
-              href="https://www.youtube.com/watch?v=123zLI3JoRQ"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="선택한 영상을 새 창에서 보기"
-              >PLAY ↗</a
-            >
-          </div>
-          <div class="media-caption">
-            <div>
-              <span class="mono">NOW SHOWING</span>
-              <strong data-media-title>World Champion Recipe</strong>
-            </div>
-            <div class="media-pagination" aria-label="영상 선택">
-              <button class="is-active" type="button" data-media-index="0" aria-label="첫 번째 영상">01</button>
-              <button type="button" data-media-index="1" aria-label="두 번째 영상">02</button>
-              <button type="button" data-media-index="2" aria-label="세 번째 영상">03</button>
-            </div>
-          </div>
-        </div>
-
-        <aside class="hero-aside reveal">
-          <div>
-            <span class="mono">TODAY'S CONDITION</span>
-            <strong>18°C / 58%</strong>
-            <small>맑음 · 서울</small>
-          </div>
-          <div>
-            <span class="mono">COMMUNITY BREWS</span>
-            <strong data-brew-count>2,481</strong>
-            <small>이번 주 기록</small>
-          </div>
-        </aside>
-
-        <div class="hero-scroll mono" aria-hidden="true">SCROLL TO DIAL IN <span>↓</span></div>
-      </section>
-
-      <section class="ticker" aria-label="주요 기록 항목">
-        <div class="ticker-track">
-          <span>WATER</span><i>✳</i><span>BEANS</span><i>✳</i><span>GRINDER</span><i>✳</i><span>WEATHER</span><i>✳</i><span>DEGASSING</span><i>✳</i><span>POUR</span><i>✳</i><span>TASTE</span><i>✳</i>
-          <span>WATER</span><i>✳</i><span>BEANS</span><i>✳</i><span>GRINDER</span><i>✳</i><span>WEATHER</span><i>✳</i><span>DEGASSING</span><i>✳</i><span>POUR</span><i>✳</i><span>TASTE</span><i>✳</i>
-        </div>
-      </section>
-
-      <section class="manifesto section-pad" aria-labelledby="manifesto-title">
-        <div class="section-index mono">00 / WHY</div>
-        <div class="manifesto-copy reveal">
-          <p class="eyebrow">COFFEE IS A SERIES OF DECISIONS.</p>
-          <h2 id="manifesto-title">
-            같은 원두도, 같은 사람도,<br />
-            <span>오늘의 커피는 다릅니다.</span>
-          </h2>
-          <p class="body-copy">
-            DIAL IN은 정답을 약속하지 않습니다. 대신 한 잔을 만든 모든 선택을 빠짐없이 남기고,
-            그 기록을 레시피와 사람 사이의 대화로 바꿉니다.
-          </p>
-        </div>
-        <div class="manifesto-numbers reveal" aria-label="플랫폼 핵심 지표 예시">
-          <div><strong>01</strong><span>GUIDED<br />BREWING</span></div>
-          <div><strong>∞</strong><span>CUSTOM<br />VARIABLES</span></div>
-          <div><strong>1:1</strong><span>RECORD TO<br />DISCUSSION</span></div>
-        </div>
-      </section>
-
-      <section class="recipes section-pad" id="recipes" aria-labelledby="recipes-title">
-        <div class="section-heading reveal">
-          <div>
-            <span class="section-index mono">01 / RECIPES</span>
-            <h2 id="recipes-title">따라가는 레시피.</h2>
-          </div>
-          <p>유명 브루어의 레시피를 타임라인으로 재구성했습니다. 다음 물 붓기 순간을 화면과 소리로 알려드립니다.</p>
-        </div>
-
-        <div class="recipe-grid" data-recipe-grid>
-          <article class="recipe-card is-featured reveal" data-recipe="46">
-            <div class="card-top">
-              <span class="mono">01 / V60</span><span class="status-dot">COMMUNITY PICK</span>
-            </div>
-            <div class="recipe-visual visual-46" aria-hidden="true">
-              <svg viewBox="0 0 420 330" role="img">
-                <circle cx="210" cy="142" r="110"></circle>
-                <circle cx="210" cy="142" r="76"></circle>
-                <path d="M128 122h164l-29 115H157z"></path>
-                <path d="M174 237h72v45h-72z"></path>
-                <path d="M194 68c-18 35 28 35 8 70"></path>
-                <path d="M229 66c-20 38 27 38 4 72"></path>
-              </svg>
-              <span class="visual-number">46</span>
-            </div>
-            <div class="recipe-info">
-              <p>TETSU KASUYA</p>
-              <h3>4:6 Method</h3>
-              <div class="recipe-meta mono"><span>20G</span><span>300G</span><span>93°C</span><span>03:30</span></div>
-            </div>
-            <button class="card-action magnetic" type="button" data-open-recipe="46"><span>이 레시피로 추출</span><span>↗</span></button>
-          </article>
-
-          <article class="recipe-card reveal" data-recipe="onecup">
-            <div class="card-top">
-              <span class="mono">02 / V60</span><span class="status-dot">BALANCED</span>
-            </div>
-            <div class="recipe-visual visual-one" aria-hidden="true">
-              <div class="orbital-ring"><span></span></div>
-              <span class="visual-number">1C</span>
-            </div>
-            <div class="recipe-info">
-              <p>JAMES HOFFMANN</p>
-              <h3>One Cup V60</h3>
-              <div class="recipe-meta mono"><span>15G</span><span>250G</span><span>100°C</span><span>03:00</span></div>
-            </div>
-            <button class="card-action magnetic" type="button" data-open-recipe="onecup"><span>이 레시피로 추출</span><span>↗</span></button>
-          </article>
-
-          <article class="recipe-card reveal" data-recipe="april">
-            <div class="card-top">
-              <span class="mono">03 / FLAT BED</span><span class="status-dot">SWEET</span>
-            </div>
-            <div class="recipe-visual visual-april" aria-hidden="true">
-              <div class="stacked-lines"></div>
-              <span class="visual-number">A3</span>
-            </div>
-            <div class="recipe-info">
-              <p>APRIL</p>
-              <h3>Three Pour</h3>
-              <div class="recipe-meta mono"><span>12G</span><span>200G</span><span>92°C</span><span>02:30</span></div>
-            </div>
-            <button class="card-action magnetic" type="button" data-open-recipe="april"><span>이 레시피로 추출</span><span>↗</span></button>
-          </article>
-        </div>
-        <p class="recipe-note mono">* 레시피 수치와 출처는 프로토타입용 예시이며, 정식 서비스에서는 원저자 공개 자료를 검수해 연결합니다.</p>
-      </section>
-
-      <section class="timer-showcase" aria-labelledby="timer-showcase-title">
-        <div class="timer-showcase-copy reveal">
-          <span class="section-index mono">02 / GUIDED TIMER</span>
-          <h2 id="timer-showcase-title">화면을 보지 않아도<br />다음 동작을 알 수 있게.</h2>
-          <p>각 단계가 바뀔 때 화면, 소리, 진동으로 알려줍니다. 한 손은 주전자에 두세요.</p>
-          <button class="text-button magnetic" type="button" data-start-brew>라이브 타이머 체험 <span>→</span></button>
-        </div>
-        <div class="timer-demo reveal" aria-hidden="true">
-          <div class="timer-demo-header mono"><span>STEP 02 / 05</span><span>FLOW 4.2 G/S</span></div>
-          <div class="demo-time">00:45</div>
-          <div class="demo-instruction"><span>POUR TO</span><strong>120g</strong></div>
-          <div class="demo-ring"><span></span></div>
-          <div class="demo-timeline">
-            <span class="done"></span><span class="active"></span><span></span><span></span><span></span>
-          </div>
-        </div>
-      </section>
-
-      <section class="brew-lab section-pad" id="lab" aria-labelledby="lab-title">
-        <div class="section-heading reveal">
-          <div>
-            <span class="section-index mono">03 / BREW LAB</span>
-            <h2 id="lab-title">내 기록의 필드는<br />내가 정합니다.</h2>
-          </div>
-          <p>처음에는 꼭 필요한 것만. 익숙해지면 물의 경도, 날씨, 디게싱, 교반까지 원하는 변수를 더하세요.</p>
-        </div>
-
-        <div class="lab-layout">
-          <div class="field-editor reveal">
-            <div class="panel-label"><span>RECORD FIELDS</span><small>탭해서 포함 / 제외</small></div>
-            <div class="field-chips" data-field-chips></div>
-            <form class="add-field" data-add-field-form>
-              <label class="sr-only" for="custom-field">새 기록 항목 이름</label>
-              <input id="custom-field" name="field" type="text" maxlength="18" placeholder="새 항목 추가 (예: TDS)" />
-              <button type="submit" aria-label="기록 항목 추가">＋</button>
-            </form>
-            <div class="field-hint mono"><span data-field-count>08 FIELDS ACTIVE</span><span>AUTO SAVED</span></div>
-          </div>
-
-          <form class="brew-form reveal" data-brew-form>
-            <div class="brew-form-top">
-              <div><span class="mono">NEW BREW / TODAY</span><h3>ETHIOPIA<br />BENTI NENKA</h3></div>
-              <div class="score-dial" aria-label="예상 만족도 4.6점"><span>4.6</span><small>/ 5</small></div>
-            </div>
-            <div class="dynamic-fields" data-dynamic-fields></div>
-            <div class="brew-notes">
-              <label for="brew-notes">TASTING NOTES</label>
-              <textarea id="brew-notes" name="notes" rows="3" placeholder="복숭아, 얼그레이, 긴 단맛…"></textarea>
-            </div>
-            <button class="save-brew magnetic" type="submit"><span>추출 기록 저장</span><span>ARCHIVE ↗</span></button>
-          </form>
-        </div>
-      </section>
-
-      <section class="archive section-pad" id="archive" aria-labelledby="archive-title">
-        <div class="section-heading reveal">
-          <div>
-            <span class="section-index mono">04 / ARCHIVE</span>
-            <h2 id="archive-title">기록은 쌓일수록<br />취향에 가까워집니다.</h2>
-          </div>
-          <p>지난 추출을 비교하고, 다시 만들고 싶은 한 잔은 레시피로 저장하세요.</p>
-        </div>
-        <div class="archive-toolbar reveal">
-          <div class="archive-tabs" role="tablist" aria-label="아카이브 필터">
-            <button class="is-active" type="button">ALL</button><button type="button">FAVORITES</button><button type="button">SHARED</button>
-          </div>
-          <button class="round-button magnetic" type="button" data-export>EXPORT ↓</button>
-        </div>
-        <div class="archive-list" data-archive-list></div>
-      </section>
-
-      <section class="community section-pad" id="community" aria-labelledby="community-title">
-        <div class="community-head reveal">
-          <span class="section-index mono">05 / COMMUNITY</span>
-          <h2 id="community-title">좋은 질문이<br />좋은 커피를 만듭니다.</h2>
-          <p>기록을 공유하고, 변수 하나를 바꿨을 때 무엇이 달라졌는지 함께 이야기하세요.</p>
-          <button class="pill-button light magnetic" type="button" data-new-post><span>이야기 시작하기</span><span>＋</span></button>
-        </div>
-        <div class="community-feed" data-community-feed>
-          <article class="community-post reveal">
-            <div class="post-meta"><span class="avatar">MK</span><div><strong>min.kaffee</strong><small>12분 전 · 서울</small></div><span class="mono"># WATER</span></div>
-            <h3>같은 원두, 물만 바꿨는데 애프터가 완전히 달라졌어요.</h3>
-            <p>GH 60 / KH 30에서 단맛은 좋았지만 피니시가 짧았습니다. KH를 20으로 내리니 베르가못이 훨씬 오래 남네요.</p>
-            <div class="post-brew"><span>ETHIOPIA BENTI NENKA</span><span>V60 · 15:250 · 93°C</span><strong>4.7</strong></div>
-            <div class="post-actions"><button type="button" data-like>♡ <span>28</span></button><button type="button" data-discuss>DISCUSS 07</button><button type="button" data-share>SHARE ↗</button></div>
-          </article>
-          <article class="community-post reveal">
-            <div class="post-meta"><span class="avatar inverted">WR</span><div><strong>washed.room</strong><small>1시간 전 · 부산</small></div><span class="mono"># RECIPE</span></div>
-            <h3>4:6 첫 두 번의 푸어 비율, 어디까지 바꿔보셨나요?</h3>
-            <p>산미를 올리려고 50g / 70g으로 시작했습니다. 분쇄도는 유지했는데 클린컵도 좋아진 느낌이라 비교 기록을 공유합니다.</p>
-            <div class="post-brew"><span>KENYA GICHATHAINI</span><span>V60 · 20:300 · 92°C</span><strong>4.5</strong></div>
-            <div class="post-actions"><button type="button" data-like>♡ <span>41</span></button><button type="button" data-discuss>DISCUSS 12</button><button type="button" data-share>SHARE ↗</button></div>
-          </article>
-        </div>
-      </section>
-
-      <section class="brand-log section-pad" aria-labelledby="brand-title">
-        <div class="brand-log-copy reveal">
-          <span class="section-index mono">06 / ROASTER LOG</span>
-          <h2 id="brand-title">브랜드가 직접 남기는<br />가장 생생한 브루 노트.</h2>
-          <p>로스터가 배전 직후부터 최적의 디게싱 구간까지 매일 추출하고 변화 과정을 공개하는 공간입니다.</p>
-          <a class="text-button" href="#community">브랜드 로그 둘러보기 <span>→</span></a>
-        </div>
-        <div class="brand-log-visual reveal">
-          <div class="log-card log-card-main">
-            <div class="log-logo">MØ</div>
-            <div><span class="mono">MONO ROASTERS · OFFICIAL</span><h3>COLOMBIA<br />EL DIVISO</h3></div>
-            <div class="degassing-chart" aria-label="디게싱 14일 변화 차트">
-              <svg viewBox="0 0 540 150" role="img">
-                <path d="M0 116 C52 108,70 40,122 68 S190 108,238 64 S310 32,355 74 S430 124,540 38"></path>
-                <line x1="0" x2="540" y1="125" y2="125"></line>
-                <circle cx="355" cy="74" r="7"></circle>
-              </svg>
-              <div class="chart-labels mono"><span>D+03</span><span>D+07</span><span>D+10</span><span>D+14</span></div>
-            </div>
-            <div class="log-result"><span>오늘의 권장 구간</span><strong>D+10—14</strong></div>
-          </div>
-          <div class="log-card log-card-back"><span class="mono">LATEST UPDATE</span><strong>오늘 08:42</strong><p>향미가 열리는 속도가 어제보다 빨라졌습니다.</p></div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <div class="footer-top">
-        <p>다음 한 잔을 기록할 준비가 되었나요?</p>
-        <button class="pill-button inverse magnetic" type="button" data-start-brew><span>START BREWING</span><span>↗</span></button>
-      </div>
-      <div class="footer-wordmark" aria-hidden="true">DIAL IN</div>
-      <div class="footer-bottom">
-        <div><strong>DIAL IN°</strong><span>THE OPEN BREW ARCHIVE</span></div>
-        <nav aria-label="푸터 메뉴"><a href="#recipes">RECIPES</a><a href="#lab">LAB</a><a href="#archive">ARCHIVE</a><a href="#community">COMMUNITY</a></nav>
-        <div class="mono"><span>PROTOTYPE V0.1</span><span>© 2026</span></div>
-      </div>
-    </footer>
-
-    <dialog class="brew-dialog" data-brew-dialog>
-      <div class="dialog-shell">
-        <header class="dialog-header">
-          <a class="wordmark" href="#top">DIAL IN<span>°</span></a>
-          <div class="dialog-recipe"><span class="mono">ACTIVE RECIPE</span><strong data-dialog-recipe>4:6 METHOD</strong></div>
-          <button class="close-button magnetic" type="button" data-close-dialog aria-label="타이머 닫기">×</button>
-        </header>
-        <div class="brew-timer-layout">
-          <div class="brew-progress-panel">
-            <div class="timer-status mono"><span data-step-label>STEP 01 / 05</span><span data-timer-state>READY</span></div>
-            <div class="main-timer" data-main-timer>00:00</div>
-            <div class="timer-command"><span data-command-label>READY</span><strong data-command-value>준비되면 시작하세요</strong></div>
-            <div class="progress-track"><span data-progress-bar></span></div>
-            <div class="timer-controls">
-              <button class="timer-primary magnetic" type="button" data-timer-toggle>START</button>
-              <button type="button" data-timer-reset>RESET</button>
-              <button type="button" data-timer-sound aria-pressed="true">SOUND ON</button>
-            </div>
-          </div>
-          <div class="brew-steps-panel">
-            <div class="recipe-summary" data-recipe-summary></div>
-            <ol class="brew-steps" data-brew-steps></ol>
-            <button class="save-after-brew" type="button" data-save-after-brew disabled>추출 완료 후 기록 남기기 <span>→</span></button>
-          </div>
-        </div>
-      </div>
-    </dialog>
-
-    <dialog class="post-dialog" data-post-dialog>
-      <form method="dialog" class="post-form" data-post-form>
-        <button class="close-button" type="button" data-close-post aria-label="게시글 작성 닫기">×</button>
-        <span class="section-index mono">NEW DISCUSSION</span>
-        <h2>무엇이 달라졌나요?</h2>
-        <label>제목<input name="title" type="text" required maxlength="80" placeholder="비교하고 싶은 변수나 질문" /></label>
-        <label>이야기<textarea name="body" required rows="6" placeholder="원두, 레시피, 바꾼 변수와 맛의 변화를 적어주세요."></textarea></label>
-        <div class="form-row"><label>태그<input name="tag" type="text" maxlength="14" placeholder="예: GRIND" /></label><label>평점<input name="score" type="number" min="1" max="5" step="0.1" value="4.5" /></label></div>
-        <button class="save-brew" type="submit"><span>커뮤니티에 올리기</span><span>POST ↗</span></button>
-      </form>
-    </dialog>
-
-    <div class="toast" data-toast role="status" aria-live="polite"></div>
-  </body>
+    <div class="hero-meta" aria-hidden="true">
+      <span>SEOUL · KR</span><span>SCROLL TO EXPLORE</span>
+    </div>
+    <a class="hero-tile" href="community.html">
+      <span>01 / OPEN TABLE</span>
+      <strong>오늘의 추출을<br>함께 이야기하기</strong>
+      <i>→</i>
+    </a>
+  </main>
+</body>
 </html>
